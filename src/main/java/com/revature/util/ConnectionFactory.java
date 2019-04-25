@@ -8,23 +8,24 @@ import java.util.Properties;
 
 public class ConnectionFactory {
 
-	private static final Properties props = getJdbcProperties();
+	
 	
 	// Private Constructor to enforce usage of factory method
 	private ConnectionFactory() {}
 	
 	public static Connection getConnection() {
 		try {
-//			return DriverManager.getConnection(props.getProperty("jdbc.url"), 
-//					props.getProperty("jdbc.username"), 
-//					props.getProperty("jdbc.password"));
+			Class.forName("oracle.jdbc.OracleDriver");
 			return DriverManager.getConnection(System.getenv("JDBC_URL"), 
 					System.getenv("JDBC_USER"), System.getenv("JDBC_PASSWORD"));
 		} catch (SQLException e) {
 			System.err.println("Error Code: " + e.getErrorCode());
 			System.err.println("SQL State: " + e.getSQLState());
 			throw new RuntimeException("Failed to get database connection");
-		} 
+		}
+		catch (ClassNotFoundException e) {
+	        throw new RuntimeException("Failed to load JDBC Driver");
+	    }
 	}
 	
 	private static Properties getJdbcProperties() {
@@ -35,6 +36,7 @@ public class ConnectionFactory {
 		} catch (IOException e) {
 			throw new RuntimeException("Failed to load application.properties");
 		} 
+		
 		return props;
 	}
 }
